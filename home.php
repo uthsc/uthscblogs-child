@@ -12,33 +12,49 @@
         ?>
         <?php $paged = (get_query_var('paged')) ? get_query_var('paged') : 1; ?>
         <?php if ($paged < 2) { ?>
-            <ul class="example-orbit" data-orbit>
-                <li>
-                    <img src="http://lorempixel.com/800/250/city/" alt="slide 1" />
-                    <div class="orbit-caption">
-                        Caption One.
-                    </div>
-                </li>
-                <li class="active">
-                    <img src="http://lorempixel.com/800/250/nature/" alt="slide 2" />
-                    <div class="orbit-caption">
-                        Caption Two.
-                    </div>
-                </li>
-                <li>
-                    <img src="http://lorempixel.com/800/250/city/" alt="slide 3" />
-                    <div class="orbit-caption">
-                        Caption Three.
-                    </div>
-                </li>
-            </ul>
+
+        <?php
+
+        // args
+            $args = array(
+                'numberposts' => -1,
+
+
+                'meta_query' => array(
+                    array(
+                        'key' => 'add_to_slider', // name of custom field
+                        'value' => '"Add To Slider"', // matches exaclty "red", not just red. This prevents a match for "acquired"
+                        'compare' => 'LIKE'
+                    )
+                )
+            );
+
+            // get results
+            $the_query = new WP_Query( $args );
+
+            // The Loop
+            ?>
+            <?php if( $the_query->have_posts() ): ?>
+                <ul class="example-orbit hide-for-small-down" data-orbit>
+                    <?php while ( $the_query->have_posts() ) : $the_query->the_post(); ?>
+                        <li>
+                            <img src="<?php echo get_field('slider_image',get_the_id())?>" alt="slider-image" />
+                            <div class="orbit-caption">
+                                <?php echo get_the_title( get_the_id() ) ?>
+                            </div>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            <?php endif; ?>
+
+            <?php wp_reset_query();  // Restore global post data stomped by the_post(). ?>
 
         <?php } ?>
 
-
+        <?php $paged = ( get_query_var('paged') ) ? get_query_var('paged') : 1; ?>
         <?php $args = array(
             'post_type' => 'post',
-            'author' => '16'
+            'paged'  => $paged
         ); ?>
         <?php $the_query = new WP_Query( $args ); ?>
         <?php if ( $the_query->have_posts() ) : ?>
